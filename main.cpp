@@ -409,10 +409,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			color = RED;
 		}
 
-		ImGui::DragFloat3("cameraPos", &cameraPosition.x, 0.01f, -10.0f, 10.0f);
-		ImGui::DragFloat3("cameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
-		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
-
 		aabb1.min.x = (std::min)(aabb1.min.x, aabb1.max.x);
 		aabb1.max.x = (std::max)(aabb1.min.x, aabb1.max.x);
 		aabb1.min.y = (std::min)(aabb1.min.y, aabb1.max.y);
@@ -427,11 +423,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		aabb2.min.z = (std::min)(aabb2.min.z, aabb2.max.z);
 		aabb2.max.z = (std::max)(aabb2.min.z, aabb2.max.z);
 
-		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.1f);
-		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.1f);
-
-		ImGui::DragFloat3("aabb2.max", &aabb2.max.x, 0.1f);
-		ImGui::DragFloat3("aabb2.min", &aabb2.min.x, 0.1f);
 
 		///
 		/// ↑更新処理ここまで
@@ -440,6 +431,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+
+
+		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.1f);
+		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.1f);
+
+		ImGui::DragFloat3("aabb2.max", &aabb2.max.x, 0.1f);
+		ImGui::DragFloat3("aabb2.min", &aabb2.min.x, 0.1f);
+
+		ImGui::DragFloat3("cameraPos", &cameraPosition.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("cameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
 
 		DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
