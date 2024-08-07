@@ -320,14 +320,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector3 start = Transform(Transform(ray.origin, worldViewProjectionMatrix), viewportMatrix);
 		Vector3 end = Transform(Transform(Add(ray.origin, ray.diff), worldViewProjectionMatrix), viewportMatrix);
 
-		ImGui::DragFloat3("cameraPos", &cameraPosition.x, 0.01f, -10.0f, 10.0f);
-		ImGui::DragFloat3("cameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
-		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
-		ImGui::DragFloat3("Plane.normal", &plane.normal.x, 0.01f);
-		ImGui::DragFloat("Plane.distance", &plane.distance, 0.01f);
-		ImGui::DragFloat3("ray.origin", &ray.origin.x, 0.01f);
-		ImGui::DragFloat3("ray.diff", &ray.diff.x, 0.01f);
-
 		plane.normal = Normalize(plane.normal);
 
 		///
@@ -337,6 +329,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+
+		ImGui::DragFloat3("cameraPos", &cameraPosition.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("cameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat3("Plane.normal", &plane.normal.x, 0.01f);
+		ImGui::DragFloat("Plane.distance", &plane.distance, 0.01f);
+		ImGui::DragFloat3("ray.origin", &ray.origin.x, 0.01f);
+		ImGui::DragFloat3("ray.diff", &ray.diff.x, 0.01f);
 
 		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 		// グリッドの描画
