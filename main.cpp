@@ -364,6 +364,44 @@ bool IsCollision(const AABB& aabb, const Sphere& sphere) {
 	return false;
 }
 
+bool IsCollision(const AABB& aabb, const Segment& segment) {
+	// x軸方向の交差点でのt値
+	float tNearX = (aabb.min.x - segment.origin.x) / segment.diff.x;
+	float tFarX = (aabb.max.x - segment.origin.x) / segment.diff.x;
+
+	if (std::isnan(tNearX) || std::isnan(tFarX)) return false; // NaNが検出された場合は衝突なしとする
+	if (tNearX > tFarX) std::swap(tNearX, tFarX);
+
+	// y軸方向の交差点でのt値
+	float tNearY = (aabb.min.y - segment.origin.y) / segment.diff.y;
+	float tFarY = (aabb.max.y - segment.origin.y) / segment.diff.y;
+
+	if (std::isnan(tNearY) || std::isnan(tFarY)) return false; // NaNが検出された場合は衝突なしとする
+	if (tNearY > tFarY) std::swap(tNearY, tFarY);
+
+	// z軸方向の交差点でのt値
+	float tNearZ = (aabb.min.z - segment.origin.z) / segment.diff.z;
+	float tFarZ = (aabb.max.z - segment.origin.z) / segment.diff.z;
+
+	if (std::isnan(tNearZ) || std::isnan(tFarZ)) return false; // NaNが検出された場合は衝突なしとする
+	if (tNearZ > tFarZ) std::swap(tNearZ, tFarZ);
+
+	// tNearの最大値とtFarの最小値を求める
+	float tmin = max(max(tNearX, tNearY), tNearZ);
+	float tmax = min(min(tFarX, tFarY), tFarZ);
+
+	// tminとtmaxがNaNでないことを確認
+	if (std::isnan(tmin) || std::isnan(tmax)) return false;
+
+	// 線分がAABBと交差するかどうかを判定
+	if (tmin <= tmax && tmax >= 0.0f && tmin <= 1.0f) {
+		return true;
+	}
+	return false;
+}
+
+
+// Windowsアプリでのエントリーポイント(main関数)
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -381,32 +419,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraScale{ 1.0f, 1.0f, 1.0f };
 	Vector3 cameraRotate{ 2.6f,0.0f,0.0f };
 
+
 	AABB aabb{
 		.min{-0.5f,-0.5f,-0.5f},
-		.max{0.0f,0.0f,0.0f},
+		.max{0.5f,0.5f,0.5f},
 	};
-
-	Sphere sphere{
-.   center{0.0f,0.0f,0.0f},
-.   radius{1.0f}
+	Segment segment{
+		.origin{-0.7f,0.3f,0.0f},
+		.diff{2.0f,-0.5f,0.0f}
 	};
 
 	bool isCollision{};
-	unsigned int color = RED;
 
-	struct Triangle {
-	Vector3 vertices[3];
-    };
-
-	aabb.min.x = (std::min)(aabb.min.x, aabb.max.x);
-	aabb.max.x = (std::max)(aabb.min.x, aabb.max.x);
-
-	aabb.min.y = (std::min)(aabb.min.y, aabb.max.y);
-	aabb.max.y = (std::max)(aabb.min.y, aabb.max.y);
-
-	aabb.min.z = (std::min)(aabb.min.z, aabb.max.z);
-	aabb.max.z = (std::max)(aabb.min.z, aabb.max.z);
-
+	unsigned int color = 0xffffffff;
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -420,19 +445,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		 // 更新
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotate, translate);
 		Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraScale, cameraRotate, cameraPosition);
 		Matrix4x4 projectionMatrix = MakePerspectiveMatrix(0.45f, 1280.0f / 720.0f, 0.1f, 100.0f);
 		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(cameraMatrix, projectionMatrix));
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, 1280.0f, 720.0f, 0.0f, 1.0f);
 
-		isCollision = IsCollision(aabb, sphere);
+		isCollision = IsCollision(aabb, segment);
 
 		if (isCollision) {
-			color = WHITE;
+			color = 0x00ffffff;
 		}
 		else {
-			color = RED;
+			color = 0xffffffff;
 		}
 
 		aabb.min.x = (std::min)(aabb.min.x, aabb.max.x);
@@ -442,6 +468,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		aabb.min.z = (std::min)(aabb.min.z, aabb.max.z);
 		aabb.max.z = (std::max)(aabb.min.z, aabb.max.z);
 
+		Vector3 start = Transform(Transform(segment.origin, worldViewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), worldViewProjectionMatrix), viewportMatrix);
+
 		///
 		/// ↑更新処理ここまで
 		///
@@ -450,20 +479,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
+		ImGui::DragFloat3("aabb.max", &aabb.max.x, 0.01f);
+		ImGui::DragFloat3("aabb.min", &aabb.min.x, 0.01f);
+		ImGui::DragFloat3("sphere.center", &segment.origin.x, 0.1f);
+		ImGui::DragFloat3("sphere.radius", &segment.diff.x, 0.1f);
 		ImGui::DragFloat3("cameraPos", &cameraPosition.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("cameraScale", &cameraScale.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat3("cameraRotate", &cameraRotate.x, 0.01f, -10.0f, 10.0f);
 
-		ImGui::DragFloat3("aabb.max", &aabb.max.x, 0.01f);
-		ImGui::DragFloat3("aabb.min", &aabb.min.x, 0.01f);
-
-		ImGui::DragFloat3("sphere.center", &sphere.center.x, 0.1f);
-		ImGui::DragFloat("sphere.radius", &sphere.radius, 0.1f);
-		
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+		// グリッドの描画
 		DrawGrid(worldViewProjectionMatrix, viewportMatrix);
 
 		DrawAABB(aabb, worldViewProjectionMatrix, viewportMatrix, color);
-		DrawSphere(sphere, worldViewProjectionMatrix, viewportMatrix, color);
 
 		///
 		/// ↑描画処理ここまで
