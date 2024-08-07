@@ -62,9 +62,9 @@ struct OBB {
 
 void DrawGrid(const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix) {
 
-	const float kGridHalfWidth = 2.0f;//Gridの半分の幅
-	const uint32_t kSubdivision = 10;//分割数
-	const float kGridEvery = (kGridHalfWidth * 2.0f) / float(kSubdivision);//ひとつ分の長さ
+	const float kGridHalfWidth = 2.0f;
+	const uint32_t kSubdivision = 16;
+	const float kGridEvery = (kGridHalfWidth * 2.0f) / float(kSubdivision);
 
 	for (uint32_t xIndex = 0; xIndex <= kSubdivision; ++xIndex) {
 		float x = -kGridHalfWidth + xIndex * kGridEvery;
@@ -97,32 +97,26 @@ void DrawSphere(Sphere sphere, const Matrix4x4& viewProjectionMatrix, const Matr
 
 	float pi = PI;
 
-	//経度分数1つ分の角度
 	const float kLonEvery = pi * 2.0f / float(kSubdivision);
-	//緯度分数1つ分の角度
+
 	const float kLatEvery = pi / float(kSubdivision);
-	//経度の方向に分割
+
 	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
 		float lat = -pi / 2.0f + kLatEvery * latIndex;
-		//経度の方向に分割しながら線を描く
 		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
-			//uint32_t start = (latIndex * kSubdivision + lonIndex) * 6;
 
 			float lon = lonIndex * kLonEvery;
 
 			Vector3 A, B, C;
 
-
-			//A
 			A = { sphere.center.x + sphere.radius * cos(lat) * cos(lon),
 				sphere.center.y + sphere.radius * sin(lat),
 				sphere.center.z + sphere.radius * cos(lat) * sin(lon) };
-			//B
+
 			B = { sphere.center.x + sphere.radius * cos(lat + kLatEvery) * cos(lon),
 				sphere.center.y + sphere.radius * sin(lat + kLatEvery)
 				,sphere.center.z + sphere.radius * cos(lat + kLatEvery) * sin(lon) };
-			// 
-			//C
+
 			C = { sphere.center.x + sphere.radius * cos(lat) * cos(lon + kLonEvery),
 				sphere.center.y + sphere.radius * sin(lat),
 				sphere.center.z + sphere.radius * cos(lat) * sin(lon + kLonEvery) };
@@ -142,7 +136,6 @@ struct Triangle {
 	Vector3 vertices[3];
 };
 
-// Linear interpolation between two vectors v1 and v2
 Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t) {
 	return v1 + (v2 - v1) * t;
 }
@@ -157,7 +150,6 @@ Vector3 Bezier(const Vector3& p0, const Vector3& p1, const Vector3& p2, float t)
 	return Lerp(p0p1, p1p2, t);
 }
 
-// Draw a Bezier curve defined by three control points p0, p1, p2
 void DrawBezier(const Vector3& controlPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2,
 	const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 
