@@ -2,8 +2,99 @@
 #include<cmath>
 #include<assert.h>
 #include<Novice.h>
-#include<vector3.h>
 #include<Matrix4x4.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
+
+/// <summary>
+/// 3次元ベクトル
+/// </summary>
+struct Vector3 final {
+	float x, y, z;
+
+	// 内積を計算するメンバー関数
+	float dot(const Vector3& other) const { return x * other.x + y * other.y + z * other.z; }
+
+	// スカラー倍を行うメンバー関数
+	Vector3 scale(float scalar) const { return { x * scalar, y * scalar, z * scalar }; }
+
+	// 演算子オーバーロード
+	Vector3 operator+(const Vector3& other) const { return { x + other.x, y + other.y, z + other.z }; }
+
+	Vector3 operator-(const Vector3& other) const { return { x - other.x, y - other.y, z - other.z }; }
+
+	Vector3 operator/(float scalar) const { return { x / scalar, y / scalar, z / scalar }; }
+	Vector3 operator-(float scalar) const { return { x - scalar, y - scalar, z - scalar }; }
+	Vector3 operator+(float scalar) const { return { x + scalar, y + scalar, z + scalar }; }
+	// ベクトルの長さの二乗を計算するメンバー関数
+	float lengthSquared() const { return x * x + y * y + z * z; }
+
+	// += 演算子のオーバーロード
+	Vector3& operator+=(const Vector3& other) {
+		this->x += other.x;
+		this->y += other.y;
+		this->z += other.z;
+		return *this;
+	}
+
+	Vector3 operator*(float scalar) const { return { x * scalar, y * scalar, z * scalar }; }
+};
+
+// 加算
+inline Vector3 Add(const Vector3& v1, const Vector3& v2) {
+	Vector3 v3 = {};
+	v3.x = v1.x + v2.x;
+	v3.y = v1.y + v2.y;
+	v3.z = v1.z + v2.z;
+	return v3;
+}
+// 減算
+inline Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
+	Vector3 v3 = {};
+	v3.x = v1.x - v2.x;
+	v3.y = v1.y - v2.y;
+	v3.z = v1.z - v2.z;
+	return v3;
+}
+// スカラー
+inline Vector3 Multiply(const Vector3& v1, const Vector3& v2) {
+	Vector3 v3 = {};
+	v3.x = v1.x * v2.x;
+	v3.y = v1.y * v2.y;
+	v3.z = v1.z * v2.z;
+	return v3;
+}
+
+// スカラー
+inline Vector3 Multiply(float k, const Vector3& v) {
+	Vector3 v2 = {};
+	v2.x = v.x * k;
+	v2.y = v.y * k;
+	v2.z = v.z * k;
+	return v2;
+}
+// 内積
+inline float Dot(const Vector3& v1, const Vector3& v2) {
+	float dot = {};
+	dot = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+	return dot;
+}
+// 長さ
+inline float Length(const Vector3& v) {
+	float len = {};
+	len = sqrtf(Dot(v, v));
+	return len;
+}
+// 正規化
+inline Vector3 Normalize(const Vector3& v) {
+	float len = Length(v);
+	Vector3 v2 = {};
+	v2.x = v.x / len;
+	v2.y = v.y / len;
+	v2.z = v.z / len;
+
+	return v2;
+}
 
 Matrix4x4 MakeRotateXMatrix(float radian) {
 	Matrix4x4 result = {};
