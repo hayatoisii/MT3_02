@@ -52,7 +52,6 @@ struct  Segment
 	Vector3 diff;//終点への差分ベクトル
 };
 
-//直線と平面の当たり判定
 bool IsCollision(const Line& line, const Plane& plane) {
 	float dot = Dot(plane.normal, line.diff);
 
@@ -365,35 +364,30 @@ bool IsCollision(const AABB& aabb, const Sphere& sphere) {
 }
 
 bool IsCollision(const AABB& aabb, const Segment& segment) {
-	// x軸方向の交差点でのt値
+
 	float tNearX = (aabb.min.x - segment.origin.x) / segment.diff.x;
 	float tFarX = (aabb.max.x - segment.origin.x) / segment.diff.x;
 
-	if (std::isnan(tNearX) || std::isnan(tFarX)) return false; // NaNが検出された場合は衝突なしとする
+	if (std::isnan(tNearX) || std::isnan(tFarX)) return false;
 	if (tNearX > tFarX) std::swap(tNearX, tFarX);
 
-	// y軸方向の交差点でのt値
 	float tNearY = (aabb.min.y - segment.origin.y) / segment.diff.y;
 	float tFarY = (aabb.max.y - segment.origin.y) / segment.diff.y;
 
-	if (std::isnan(tNearY) || std::isnan(tFarY)) return false; // NaNが検出された場合は衝突なしとする
+	if (std::isnan(tNearY) || std::isnan(tFarY)) return false;
 	if (tNearY > tFarY) std::swap(tNearY, tFarY);
 
-	// z軸方向の交差点でのt値
 	float tNearZ = (aabb.min.z - segment.origin.z) / segment.diff.z;
 	float tFarZ = (aabb.max.z - segment.origin.z) / segment.diff.z;
 
-	if (std::isnan(tNearZ) || std::isnan(tFarZ)) return false; // NaNが検出された場合は衝突なしとする
+	if (std::isnan(tNearZ) || std::isnan(tFarZ)) return false;
 	if (tNearZ > tFarZ) std::swap(tNearZ, tFarZ);
 
-	// tNearの最大値とtFarの最小値を求める
 	float tmin = max(max(tNearX, tNearY), tNearZ);
 	float tmax = min(min(tFarX, tFarY), tFarZ);
 
-	// tminとtmaxがNaNでないことを確認
 	if (std::isnan(tmin) || std::isnan(tmax)) return false;
 
-	// 線分がAABBと交差するかどうかを判定
 	if (tmin <= tmax && tmax >= 0.0f && tmin <= 1.0f) {
 		return true;
 	}
@@ -401,8 +395,6 @@ bool IsCollision(const AABB& aabb, const Segment& segment) {
 }
 
 
-// Windowsアプリでのエントリーポイント(main関数)
-// Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
@@ -419,11 +411,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 cameraScale{ 1.0f, 1.0f, 1.0f };
 	Vector3 cameraRotate{ 2.6f,0.0f,0.0f };
 
-
 	AABB aabb{
 		.min{-0.5f,-0.5f,-0.5f},
-		.max{0.5f,0.5f,0.5f},
+		.max{0.0f,0.0f,0.0f},
 	};
+
 	Segment segment{
 		.origin{-0.7f,0.3f,0.0f},
 		.diff{2.0f,-0.5f,0.0f}
@@ -454,11 +446,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		isCollision = IsCollision(aabb, segment);
 
-		if (isCollision) {
-			color = 0x00ffffff;
+		if (!isCollision) {
+			color = WHITE;
 		}
 		else {
-			color = 0xffffffff;
+			color = RED;
 		}
 
 		aabb.min.x = (std::min)(aabb.min.x, aabb.max.x);
